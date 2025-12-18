@@ -4,9 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/design/caresync_design_system.dart';
-import '../../core/widgets/caresync_button.dart';
 import '../../core/providers/role_provider.dart';
-import '../auth/widgets/role_selector.dart';
 
 class RoleSelectionScreen extends ConsumerStatefulWidget {
   const RoleSelectionScreen({super.key});
@@ -17,36 +15,21 @@ class RoleSelectionScreen extends ConsumerStatefulWidget {
 }
 
 class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
-  final Set<UserRole> _selectedRoles = {};
+  UserRole? _selectedRole;
 
-  void _handleContinue() {
-    if (_selectedRoles.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Please select at least one role'),
-          backgroundColor: CareSyncDesignSystem.alertRed,
-        ),
-      );
-      return;
-    }
-
-    // Add all selected roles
-    final notifier = ref.read(roleProvider.notifier);
-    for (final role in _selectedRoles) {
-      notifier.addRole(role);
-    }
-    // Set first role as active
-    notifier.setActiveRole(_selectedRoles.first);
-  }
-
-  void _toggleRole(UserRole role) {
+  Future<void> _handleRoleSelection(UserRole role) async {
     setState(() {
-      if (_selectedRoles.contains(role)) {
-        _selectedRoles.remove(role);
-      } else {
-        _selectedRoles.add(role);
-      }
+      _selectedRole = role;
     });
+
+    // Save role to SharedPreferences
+    await ref.read(roleProvider.notifier).setRole(role);
+
+    // If we came from Profile screen (can pop), pop back
+    // Otherwise, DashboardShell will automatically rebuild with the new role
+    if (mounted && Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
   }
 
   @override
@@ -109,33 +92,31 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                   textAlign: TextAlign.center,
                 ).animate().fadeIn(duration: 300.ms, delay: 200.ms),
                 SizedBox(height: 40.h),
-                // Role Selector - Multi-select
+                // Role Selector - Single select (radio button style)
                 Column(
                       children: [
-                        _MultiRoleCard(
+                        _SingleRoleCard(
                           role: UserRole.patient,
                           title: 'Patient',
                           icon: Icons.person,
-                          isSelected: _selectedRoles.contains(UserRole.patient),
-                          onTap: () => _toggleRole(UserRole.patient),
+                          isSelected: _selectedRole == UserRole.patient,
+                          onTap: () => _handleRoleSelection(UserRole.patient),
                         ),
                         SizedBox(height: 12.h),
-                        _MultiRoleCard(
+                        _SingleRoleCard(
                           role: UserRole.manager,
                           title: 'Manager',
                           icon: Icons.people,
-                          isSelected: _selectedRoles.contains(UserRole.manager),
-                          onTap: () => _toggleRole(UserRole.manager),
+                          isSelected: _selectedRole == UserRole.manager,
+                          onTap: () => _handleRoleSelection(UserRole.manager),
                         ),
                         SizedBox(height: 12.h),
-                        _MultiRoleCard(
+                        _SingleRoleCard(
                           role: UserRole.caregiver,
                           title: 'Caregiver',
                           icon: Icons.medical_services,
-                          isSelected: _selectedRoles.contains(
-                            UserRole.caregiver,
-                          ),
-                          onTap: () => _toggleRole(UserRole.caregiver),
+                          isSelected: _selectedRole == UserRole.caregiver,
+                          onTap: () => _handleRoleSelection(UserRole.caregiver),
                         ),
                       ],
                     )
@@ -145,21 +126,6 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                       begin: const Offset(0.95, 0.95),
                       duration: 300.ms,
                       delay: 300.ms,
-                    ),
-                SizedBox(height: 32.h),
-                // Continue Button
-                CareSyncButton(
-                      text: 'Continue',
-                      onPressed: _handleContinue,
-                      width: double.infinity,
-                    )
-                    .animate()
-                    .fadeIn(duration: 300.ms, delay: 400.ms)
-                    .slideY(
-                      begin: 0.3,
-                      end: 0,
-                      duration: 300.ms,
-                      delay: 400.ms,
                     ),
                 SizedBox(height: 40.h),
               ],
@@ -171,14 +137,14 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
   }
 }
 
-class _MultiRoleCard extends StatelessWidget {
+class _SingleRoleCard extends StatelessWidget {
   final UserRole role;
   final String title;
   final IconData icon;
   final bool isSelected;
   final VoidCallback onTap;
 
-  const _MultiRoleCard({
+  const _SingleRoleCard({
     required this.role,
     required this.title,
     required this.icon,

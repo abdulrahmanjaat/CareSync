@@ -5,7 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/design/caresync_design_system.dart';
 import '../../../../core/providers/ai_insight_provider.dart';
+import '../../../../core/providers/notification_provider.dart';
 import '../../../../core/widgets/bento_card.dart';
+import '../../../notifications/notification_list_screen.dart';
 
 class HelloHeader extends ConsumerWidget {
   final String userName;
@@ -15,12 +17,14 @@ class HelloHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final insights = ref.watch(aiInsightProvider);
+    final notificationState = ref.watch(notificationProvider);
     final activeInsight = insights.firstWhere(
       (insight) => !insight.isDismissed,
       orElse: () => AIInsight(id: '', message: '', type: ''),
     );
 
     final hasActiveInsight = activeInsight.id.isNotEmpty;
+    final unreadCount = notificationState.unreadCount;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,48 +32,94 @@ class HelloHeader extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _getGreeting(),
-                  style: GoogleFonts.inter(
-                    fontSize: 14.sp,
-                    color: CareSyncDesignSystem.textSecondary,
-                  ),
-                ),
-                SizedBox(height: 4.h),
-                Text(
-                  userName,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 24.sp,
-                    fontWeight: FontWeight.bold,
-                    color: CareSyncDesignSystem.textPrimary,
-                  ),
-                ),
-              ],
-            ),
-            Container(
-              width: 48.w,
-              height: 48.w,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: CareSyncDesignSystem.primaryGradient,
-                boxShadow: [
-                  BoxShadow(
-                    color: CareSyncDesignSystem.primaryTeal.withAlpha(
-                      (0.3 * 255).round(),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _getGreeting(),
+                    style: GoogleFonts.inter(
+                      fontSize: 14.sp,
+                      color: CareSyncDesignSystem.textSecondary,
                     ),
-                    blurRadius: 15.r,
-                    spreadRadius: 2.r,
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    userName,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 24.sp,
+                      fontWeight: FontWeight.bold,
+                      color: CareSyncDesignSystem.textPrimary,
+                    ),
                   ),
                 ],
               ),
-              child: Icon(
-                Icons.person,
-                color: CareSyncDesignSystem.surfaceWhite,
-                size: 24.sp,
-              ),
+            ),
+            SizedBox(width: 12.w),
+            // Notification Bell Icon
+            Stack(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const NotificationListScreen(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: 48.w,
+                    height: 48.w,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: CareSyncDesignSystem.primaryTeal.withAlpha(
+                        (0.1 * 255).round(),
+                      ),
+                      border: Border.all(
+                        color: CareSyncDesignSystem.primaryTeal.withAlpha(
+                          (0.3 * 255).round(),
+                        ),
+                        width: 1.w,
+                      ),
+                    ),
+                    child: Icon(
+                      Icons.notifications_outlined,
+                      color: CareSyncDesignSystem.primaryTeal,
+                      size: 24.sp,
+                    ),
+                  ),
+                ),
+                if (unreadCount > 0)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: Container(
+                      padding: EdgeInsets.all(4.w),
+                      decoration: BoxDecoration(
+                        color: CareSyncDesignSystem.alertRed,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: CareSyncDesignSystem.surfaceWhite,
+                          width: 2.w,
+                        ),
+                      ),
+                      constraints: BoxConstraints(
+                        minWidth: 18.w,
+                        minHeight: 18.w,
+                      ),
+                      child: Center(
+                        child: Text(
+                          unreadCount > 9 ? '9+' : '$unreadCount',
+                          style: GoogleFonts.inter(
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.bold,
+                            color: CareSyncDesignSystem.surfaceWhite,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ],
         ),

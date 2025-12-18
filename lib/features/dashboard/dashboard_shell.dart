@@ -15,15 +15,15 @@ class DashboardShell extends ConsumerWidget {
     final roleState = ref.watch(roleProvider);
 
     // If no role is set, show role selection screen
-    if (!roleState.hasAnyRole) {
+    if (!roleState.hasRole) {
       return const RoleSelectionScreen();
     }
 
-    // Get active role or first role
-    final activeRole = roleState.activeRole ?? roleState.roles.first;
+    // Get selected role
+    final selectedRole = roleState.selectedRole!;
 
-    // Switch based on active role
-    switch (activeRole) {
+    // Switch based on selected role
+    switch (selectedRole) {
       case UserRole.patient:
         return const PatientDashboard();
       case UserRole.manager:

@@ -1,75 +1,76 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// User Roles in CareSync
 enum UserRole { patient, manager, caregiver }
 
-/// User Role State - Supports multiple roles per user
+/// User Role State - Single role per user
 class UserRoleState {
-  final List<UserRole> roles;
-  final UserRole? activeRole; // Currently active role
+  final UserRole? selectedRole; // Currently selected role
 
-  UserRoleState({this.roles = const [], this.activeRole});
+  UserRoleState({this.selectedRole});
 
-  UserRoleState copyWith({List<UserRole>? roles, UserRole? activeRole}) {
-    return UserRoleState(
-      roles: roles ?? this.roles,
-      activeRole: activeRole ?? this.activeRole,
-    );
+  UserRoleState copyWith({UserRole? selectedRole}) {
+    return UserRoleState(selectedRole: selectedRole ?? this.selectedRole);
   }
 
-  bool hasRole(UserRole role) => roles.contains(role);
-  bool get hasAnyRole => roles.isNotEmpty;
+  bool get hasRole => selectedRole != null;
 }
 
-/// Role Provider - Manages multiple roles per user
+/// Role Provider - Manages single role per user with persistence
 class RoleNotifier extends StateNotifier<UserRoleState> {
-  RoleNotifier() : super(UserRoleState());
+  static const String _roleKey = 'user_selected_role';
+  static const String _roleSelectedKey = 'role_selected_before';
 
-  /// Add a role to user's roles
-  void addRole(UserRole role) {
-    if (!state.roles.contains(role)) {
-      final updatedRoles = [...state.roles, role];
-      state = state.copyWith(
-        roles: updatedRoles,
-        activeRole: state.activeRole ?? role, // Set as active if none selected
+  RoleNotifier() : super(UserRoleState()) {
+    _loadRole();
+  }
+
+  /// Load role from SharedPreferences
+  Future<void> _loadRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    final roleString = prefs.getString(_roleKey);
+
+    if (roleString != null) {
+      final role = UserRole.values.firstWhere(
+        (r) => r.name == roleString,
+        orElse: () => UserRole.patient,
       );
+      state = UserRoleState(selectedRole: role);
     }
   }
 
-  /// Remove a role from user's roles
-  void removeRole(UserRole role) {
-    final updatedRoles = state.roles.where((r) => r != role).toList();
-    UserRole? newActiveRole = state.activeRole;
-
-    // If removing active role, switch to another if available
-    if (state.activeRole == role && updatedRoles.isNotEmpty) {
-      newActiveRole = updatedRoles.first;
-    } else if (updatedRoles.isEmpty) {
-      newActiveRole = null;
-    }
-
-    state = state.copyWith(roles: updatedRoles, activeRole: newActiveRole);
+  /// Save role to SharedPreferences
+  Future<void> _saveRole(UserRole role) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_roleKey, role.name);
+    await prefs.setBool(_roleSelectedKey, true);
   }
 
-  /// Set active role (must be in user's roles)
-  void setActiveRole(UserRole role) {
-    if (state.roles.contains(role)) {
-      state = state.copyWith(activeRole: role);
-    }
+  /// Set and save a single role
+  Future<void> setRole(UserRole role) async {
+    await _saveRole(role);
+    state = UserRoleState(selectedRole: role);
   }
 
-  /// Set single role (for backward compatibility)
-  void setRole(UserRole role) {
-    state = UserRoleState(roles: [role], activeRole: role);
-  }
-
-  /// Clear all roles
-  void clearRole() {
+  /// Clear role (for switching)
+  Future<void> clearRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_roleKey);
     state = UserRoleState();
   }
 
-  bool get hasRole => state.hasAnyRole;
-  UserRole? get currentRole => state.activeRole;
+  /// Check if role has been selected before
+  Future<bool> hasRoleBeenSelected() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_roleSelectedKey) ?? false;
+  }
+
+  /// Get current role
+  UserRole? get currentRole => state.selectedRole;
+
+  /// Check if user has a role
+  bool get hasRole => state.hasRole;
 }
 
 /// Provider for role management

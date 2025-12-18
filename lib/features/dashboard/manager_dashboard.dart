@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/design/caresync_design_system.dart';
-import 'widgets/role_switcher.dart';
 import 'presentation/widgets/global_status_ticker.dart';
 import 'presentation/widgets/advanced_patient_card.dart';
 import 'presentation/widgets/quick_command_grid.dart';
@@ -56,8 +55,6 @@ class ManagerDashboard extends ConsumerWidget {
                         ],
                       ),
                     ),
-                    SizedBox(width: 12.w),
-                    const RoleSwitcher(),
                   ],
                 ),
                 SizedBox(height: 24.h),

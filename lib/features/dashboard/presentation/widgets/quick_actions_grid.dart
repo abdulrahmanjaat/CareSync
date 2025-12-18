@@ -3,11 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/design/caresync_design_system.dart';
 import '../../../../core/widgets/bento_card.dart';
-import '../../../../core/widgets/responsive_icon.dart';
 import '../../../symptoms/symptom_logging_form.dart';
 import '../../../habits/habit_tracking_form.dart';
 import '../../../appointments/appointment_scheduling_screen.dart';
-import '../../../notifications/notification_list_screen.dart';
 import '../../../../core/providers/habit_provider.dart';
 
 /// Quick Actions Grid - Quick access to logging features
@@ -27,11 +25,15 @@ class QuickActionsGrid extends StatelessWidget {
             color: CareSyncDesignSystem.textPrimary,
           ),
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: 16.h),
+        // First Row - 2 cards
         Row(
           children: [
             Expanded(
-              child: BentoCard(
+              child: _QuickActionCard(
+                icon: Icons.medical_services,
+                label: 'Log Symptom',
+                color: CareSyncDesignSystem.alertRed,
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -39,31 +41,14 @@ class QuickActionsGrid extends StatelessWidget {
                     ),
                   );
                 },
-                padding: EdgeInsets.all(16.w),
-                child: Column(
-                  children: [
-                    ResponsiveIcon(
-                      icon: Icons.medical_services,
-                      size: 32,
-                      color: CareSyncDesignSystem.alertRed,
-                    ),
-                    SizedBox(height: 8.h),
-                    Text(
-                      'Log Symptom',
-                      style: GoogleFonts.inter(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
-                        color: CareSyncDesignSystem.textPrimary,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
               ),
             ),
             SizedBox(width: 12.w),
             Expanded(
-              child: BentoCard(
+              child: _QuickActionCard(
+                icon: Icons.fitness_center,
+                label: 'Exercise',
+                color: CareSyncDesignSystem.successEmerald,
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -73,65 +58,35 @@ class QuickActionsGrid extends StatelessWidget {
                     ),
                   );
                 },
-                padding: EdgeInsets.all(16.w),
-                child: Column(
-                  children: [
-                    ResponsiveIcon(
-                      icon: Icons.fitness_center,
-                      size: 32,
-                      color: CareSyncDesignSystem.successEmerald,
-                    ),
-                    SizedBox(height: 8.h),
-                    Text(
-                      'Exercise',
-                      style: GoogleFonts.inter(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
-                        color: CareSyncDesignSystem.textPrimary,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
               ),
             ),
-            SizedBox(width: 12.w),
+          ],
+        ),
+        SizedBox(height: 12.h),
+        // Second Row - 2 cards
+        Row(
+          children: [
             Expanded(
-              child: BentoCard(
+              child: _QuickActionCard(
+                icon: Icons.bedtime,
+                label: 'Sleep',
+                color: CareSyncDesignSystem.primaryTeal,
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => const HabitTrackingForm(
-                        habitType: HabitType.sleep,
-                      ),
+                      builder: (_) =>
+                          const HabitTrackingForm(habitType: HabitType.sleep),
                     ),
                   );
                 },
-                padding: EdgeInsets.all(16.w),
-                child: Column(
-                  children: [
-                    ResponsiveIcon(
-                      icon: Icons.bedtime,
-                      size: 32,
-                      color: CareSyncDesignSystem.primaryTeal,
-                    ),
-                    SizedBox(height: 8.h),
-                    Text(
-                      'Sleep',
-                      style: GoogleFonts.inter(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
-                        color: CareSyncDesignSystem.textPrimary,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
               ),
             ),
             SizedBox(width: 12.w),
             Expanded(
-              child: BentoCard(
+              child: _QuickActionCard(
+                icon: Icons.calendar_today,
+                label: 'Appointment',
+                color: CareSyncDesignSystem.softCoral,
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -139,102 +94,27 @@ class QuickActionsGrid extends StatelessWidget {
                     ),
                   );
                 },
-                padding: EdgeInsets.all(16.w),
-                child: Column(
-                  children: [
-                    ResponsiveIcon(
-                      icon: Icons.calendar_today,
-                      size: 32,
-                      color: CareSyncDesignSystem.softCoral,
-                    ),
-                    SizedBox(height: 8.h),
-                    Text(
-                      'Appointment',
-                      style: GoogleFonts.inter(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
-                        color: CareSyncDesignSystem.textPrimary,
-                      ),
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
               ),
             ),
           ],
         ),
         SizedBox(height: 12.h),
+        // Third Row - 1 card (centered or full width)
         Row(
           children: [
             Expanded(
-              child: BentoCard(
+              child: _QuickActionCard(
+                icon: Icons.restaurant,
+                label: 'Meal',
+                color: CareSyncDesignSystem.softCoral,
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => const HabitTrackingForm(
-                        habitType: HabitType.dietary,
-                      ),
+                      builder: (_) =>
+                          const HabitTrackingForm(habitType: HabitType.dietary),
                     ),
                   );
                 },
-                padding: EdgeInsets.all(16.w),
-                child: Column(
-                  children: [
-                    ResponsiveIcon(
-                      icon: Icons.restaurant,
-                      size: 32,
-                      color: CareSyncDesignSystem.softCoral,
-                    ),
-                    SizedBox(height: 8.h),
-                    Text(
-                      'Meal',
-                      style: GoogleFonts.inter(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
-                        color: CareSyncDesignSystem.textPrimary,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(width: 12.w),
-            Expanded(
-              flex: 3,
-              child: BentoCard(
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const NotificationListScreen(),
-                    ),
-                  );
-                },
-                padding: EdgeInsets.all(16.w),
-                backgroundColor: CareSyncDesignSystem.primaryTeal.withAlpha(
-                  (0.1 * 255).round(),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.notifications,
-                      size: 24.sp,
-                      color: CareSyncDesignSystem.primaryTeal,
-                    ),
-                    SizedBox(width: 8.w),
-                    Text(
-                      'View All Notifications',
-                      style: GoogleFonts.inter(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w600,
-                        color: CareSyncDesignSystem.primaryTeal,
-                      ),
-                    ),
-                  ],
-                ),
               ),
             ),
           ],
@@ -244,3 +124,68 @@ class QuickActionsGrid extends StatelessWidget {
   }
 }
 
+class _QuickActionCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _QuickActionCard({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BentoCard(
+      onTap: onTap,
+      height: 140.h, // Fixed height for all cards
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
+      backgroundColor: Colors.white.withAlpha((0.9 * 255).round()),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 56.w,
+            height: 56.w,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [color, color.withAlpha((0.7 * 255).round())],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: color.withAlpha((0.3 * 255).round()),
+                  blurRadius: 12.r,
+                  spreadRadius: 2.r,
+                ),
+              ],
+            ),
+            child: Icon(
+              icon,
+              color: CareSyncDesignSystem.surfaceWhite,
+              size: 28.sp,
+            ),
+          ),
+          SizedBox(height: 12.h),
+          Text(
+            label,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w600,
+              color: CareSyncDesignSystem.textPrimary,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+}

@@ -4,11 +4,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/design/caresync_design_system.dart';
-import 'widgets/role_switcher.dart';
+import '../../core/widgets/bento_card.dart';
 import 'presentation/widgets/shift_control_panel.dart';
 import 'presentation/widgets/smart_task_list.dart';
 import 'presentation/widgets/shift_handoff_card.dart';
 import 'presentation/widgets/rapid_vitals_dial.dart';
+import 'presentation/screens/join_patient_screen.dart';
 
 /// Caregiver Dashboard - Shift protocol & rapid entry
 class CaregiverDashboard extends ConsumerWidget {
@@ -52,7 +53,6 @@ class CaregiverDashboard extends ConsumerWidget {
                       ),
                     ),
                     SizedBox(width: 12.w),
-                    const RoleSwitcher(),
                     Container(
                       width: 48.w,
                       height: 48.w,
@@ -85,6 +85,61 @@ class CaregiverDashboard extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Join Patient Button
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const JoinPatientScreen(),
+                            ),
+                          );
+                        },
+                        child: BentoCard(
+                          padding: EdgeInsets.all(16.w),
+                          backgroundColor: CareSyncDesignSystem.successEmerald
+                              .withAlpha((0.1 * 255).round()),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.person_add,
+                                color: CareSyncDesignSystem.successEmerald,
+                                size: 24.sp,
+                              ),
+                              SizedBox(width: 12.w),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Join a Patient',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 16.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: CareSyncDesignSystem.textPrimary,
+                                      ),
+                                    ),
+                                    SizedBox(height: 2.h),
+                                    Text(
+                                      'Enter a caregiver code',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 12.sp,
+                                        color:
+                                            CareSyncDesignSystem.textSecondary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_forward_ios,
+                                size: 16.sp,
+                                color: CareSyncDesignSystem.textSecondary,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 24.h),
                       // Shift Control Panel
                       ShiftControlPanel(),
                       SizedBox(height: 24.h),

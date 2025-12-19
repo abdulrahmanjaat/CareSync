@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/design/caresync_design_system.dart';
-import '../../../../core/widgets/bento_card.dart';
 import 'rapid_vitals_dialog.dart';
 
 /// Rapid Vitals Dial - Expandable FAB for quick vitals entry

@@ -7,6 +7,7 @@ import '../../core/widgets/bento_card.dart';
 import '../../core/providers/role_provider.dart';
 import '../../core/providers/auth_provider.dart';
 import '../dashboard/role_selection_screen.dart';
+import '../auth/login_screen.dart';
 
 /// Profile Screen - User profile and settings
 class ProfileScreen extends ConsumerWidget {
@@ -92,7 +93,7 @@ class ProfileScreen extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(20.r),
                   ),
                   child: Text(
-                    'Active Role: ${roleState.selectedRole?.name.toUpperCase() ?? "NONE"}',
+                    'Active Role: ${roleState.activeRole?.name.toUpperCase() ?? "NONE"}',
                     style: GoogleFonts.inter(
                       fontSize: 12.sp,
                       fontWeight: FontWeight.w600,
@@ -104,10 +105,9 @@ class ProfileScreen extends ConsumerWidget {
                 // Switch Role Button
                 BentoCard(
                   onTap: () async {
-                    // Clear current role and navigate to role selection
-                    await ref.read(roleProvider.notifier).clearRole();
+                    // Navigate to role selection (no need to clear, just switch)
                     if (context.mounted) {
-                      Navigator.of(context).pushReplacement(
+                      Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (_) => const RoleSelectionScreen(),
                         ),
@@ -151,9 +151,17 @@ class ProfileScreen extends ConsumerWidget {
                             child: const Text('Cancel'),
                           ),
                           TextButton(
-                            onPressed: () {
-                              ref.read(authProvider.notifier).logout();
-                              Navigator.of(context).pop();
+                            onPressed: () async {
+                              await ref.read(authProvider.notifier).logout();
+                              if (context.mounted) {
+                                Navigator.of(context).pop();
+                                Navigator.of(context).pushAndRemoveUntil(
+                                  MaterialPageRoute(
+                                    builder: (_) => const LoginScreen(),
+                                  ),
+                                  (route) => false,
+                                );
+                              }
                             },
                             child: const Text('Logout'),
                           ),

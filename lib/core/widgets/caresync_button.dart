@@ -15,6 +15,9 @@ class CareSyncButton extends StatefulWidget {
   final double? width;
   final double? height;
   final IconData? icon;
+  final Widget? leadingIcon;
+  final bool hasBorder;
+  final Color? borderColor;
 
   const CareSyncButton({
     super.key,
@@ -27,6 +30,9 @@ class CareSyncButton extends StatefulWidget {
     this.width,
     this.height,
     this.icon,
+    this.leadingIcon,
+    this.hasBorder = false,
+    this.borderColor,
   });
 
   @override
@@ -65,9 +71,9 @@ class _CareSyncButtonState extends State<CareSyncButton> {
                       end: Alignment.bottomRight,
                       colors: [bgColor, bgColor.withAlpha((0.8 * 255).round())],
                     ),
-              border: widget.isOutlined
+              border: widget.isOutlined || widget.hasBorder
                   ? Border.all(
-                      color: bgColor,
+                      color: widget.borderColor ?? Colors.grey.shade300,
                       width: CareSyncDesignSystem.cardBorderWidth,
                     )
                   : null,
@@ -98,7 +104,10 @@ class _CareSyncButtonState extends State<CareSyncButton> {
                           mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            if (widget.icon != null) ...[
+                            if (widget.leadingIcon != null) ...[
+                              widget.leadingIcon!,
+                              SizedBox(width: 8.w),
+                            ] else if (widget.icon != null) ...[
                               Icon(widget.icon, color: txtColor, size: 20.sp),
                               SizedBox(width: 8.w),
                             ],

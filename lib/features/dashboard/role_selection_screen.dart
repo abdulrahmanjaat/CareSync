@@ -22,8 +22,8 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
       _selectedRole = role;
     });
 
-    // Save role to SharedPreferences
-    await ref.read(roleProvider.notifier).setRole(role);
+    // Set as active role
+    await ref.read(roleProvider.notifier).setActiveRole(role);
 
     // If we came from Profile screen (can pop), pop back
     // Otherwise, DashboardShell will automatically rebuild with the new role
@@ -34,6 +34,56 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final roleState = ref.watch(roleProvider);
+    final registeredRoles = roleState.registeredRoles;
+
+    // If no registered roles, show message
+    if (registeredRoles.isEmpty) {
+      return Scaffold(
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: CareSyncDesignSystem.meshGradient,
+          ),
+          child: SafeArea(
+            child: Center(
+              child: Padding(
+                padding: EdgeInsets.all(24.w),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      size: 64.sp,
+                      color: CareSyncDesignSystem.textSecondary,
+                    ),
+                    SizedBox(height: 24.h),
+                    Text(
+                      'No roles registered',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 24.sp,
+                        fontWeight: FontWeight.bold,
+                        color: CareSyncDesignSystem.textPrimary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 8.h),
+                    Text(
+                      'Please sign up with a role first',
+                      style: GoogleFonts.inter(
+                        fontSize: 16.sp,
+                        color: CareSyncDesignSystem.textSecondary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(gradient: CareSyncDesignSystem.meshGradient),
@@ -92,33 +142,22 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                   textAlign: TextAlign.center,
                 ).animate().fadeIn(duration: 300.ms, delay: 200.ms),
                 SizedBox(height: 40.h),
-                // Role Selector - Single select (radio button style)
+                // Role Selector - Show only registered roles
                 Column(
-                      children: [
-                        _SingleRoleCard(
-                          role: UserRole.patient,
-                          title: 'Patient',
-                          icon: Icons.person,
-                          isSelected: _selectedRole == UserRole.patient,
-                          onTap: () => _handleRoleSelection(UserRole.patient),
-                        ),
-                        SizedBox(height: 12.h),
-                        _SingleRoleCard(
-                          role: UserRole.manager,
-                          title: 'Manager',
-                          icon: Icons.people,
-                          isSelected: _selectedRole == UserRole.manager,
-                          onTap: () => _handleRoleSelection(UserRole.manager),
-                        ),
-                        SizedBox(height: 12.h),
-                        _SingleRoleCard(
-                          role: UserRole.caregiver,
-                          title: 'Caregiver',
-                          icon: Icons.medical_services,
-                          isSelected: _selectedRole == UserRole.caregiver,
-                          onTap: () => _handleRoleSelection(UserRole.caregiver),
-                        ),
-                      ],
+                      children: registeredRoles.map((role) {
+                        return Padding(
+                          padding: EdgeInsets.only(bottom: 12.h),
+                          child: _SingleRoleCard(
+                            role: role,
+                            title: _getRoleTitle(role),
+                            icon: _getRoleIcon(role),
+                            isSelected:
+                                _selectedRole == role ||
+                                roleState.activeRole == role,
+                            onTap: () => _handleRoleSelection(role),
+                          ),
+                        );
+                      }).toList(),
                     )
                     .animate()
                     .fadeIn(duration: 300.ms, delay: 300.ms)
@@ -134,6 +173,28 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
         ),
       ),
     );
+  }
+
+  String _getRoleTitle(UserRole role) {
+    switch (role) {
+      case UserRole.patient:
+        return 'Patient';
+      case UserRole.manager:
+        return 'Manager';
+      case UserRole.caregiver:
+        return 'Caregiver';
+    }
+  }
+
+  IconData _getRoleIcon(UserRole role) {
+    switch (role) {
+      case UserRole.patient:
+        return Icons.person;
+      case UserRole.manager:
+        return Icons.people;
+      case UserRole.caregiver:
+        return Icons.medical_services;
+    }
   }
 }
 
